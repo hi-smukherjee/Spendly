@@ -30,19 +30,19 @@ def init_db():
         CREATE TABLE IF NOT EXISTS users (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
             name          TEXT NOT NULL,
-            email         TEXT NOT NULL UNIQUE,
+            email         TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
-            created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            created_at    TEXT DEFAULT (datetime('now'))
         );
 
         CREATE TABLE IF NOT EXISTS expenses (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id     INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-            description TEXT NOT NULL,
+            user_id     INTEGER NOT NULL REFERENCES users (id),
             amount      REAL NOT NULL,
             category    TEXT NOT NULL,
             date        TEXT NOT NULL,
-            created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            description TEXT,
+            created_at  TEXT DEFAULT (datetime('now'))
         );
         """
     )
@@ -54,22 +54,29 @@ def seed_db():
     """Insert sample data for development. Safe to call multiple times."""
     conn = get_db()
 
-    existing = conn.execute("SELECT id FROM users WHERE email = ?", ("demo@spendly.dev",)).fetchone()
-    if existing is None:
-        cursor = conn.execute(
-            "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
-            ("Demo User", "demo@spendly.dev", generate_password_hash("password123")),
-        )
-        user_id = cursor.lastrowid
+    if conn.execute("SELECT id FROM users LIMIT 1").fetchone() is not None:
+        conn.close()
+        return
 
-        conn.executemany(
-            "INSERT INTO expenses (user_id, description, amount, category, date) VALUES (?, ?, ?, ?, ?)",
-            [
-                (user_id, "Groceries", 54.32, "Food", "2026-08-01"),
-                (user_id, "Electric bill", 88.10, "Utilities", "2026-08-05"),
-                (user_id, "Movie tickets", 24.00, "Entertainment", "2026-08-12"),
-            ],
-        )
+    cursor = conn.execute(
+        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+        ("Demo User", "demo@spendly.com", generate_password_hash("demo123")),
+    )
+    user_id = cursor.lastrowid
+
+    conn.executemany(
+        "INSERT INTO expenses (user_id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)",
+        [
+            (user_id, 54.32, "Food", "2026-08-01", "Groceries"),
+            (user_id, 42.00, "Transport", "2026-08-03", "Gas fill-up"),
+            (user_id, 88.10, "Bills", "2026-08-05", "Electric bill"),
+            (user_id, 22.50, "Health", "2026-08-07", "Pharmacy pickup"),
+            (user_id, 24.00, "Entertainment", "2026-08-10", "Movie tickets"),
+            (user_id, 65.99, "Shopping", "2026-08-13", "New shoes"),
+            (user_id, 15.75, "Other", "2026-08-16", "Miscellaneous"),
+            (user_id, 47.60, "Food", "2026-08-18", "Dinner out"),
+        ],
+    )
 
     conn.commit()
     conn.close()
