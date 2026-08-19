@@ -1,0 +1,36 @@
+<svg viewBox="0 0 520 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of a wallet, coins, and a rising spending chart">
+
+    <!-- background blobs -->
+    <path d="M266,36 C348,34 428,84 452,164 C476,244 440,328 358,362 C276,396 176,388 112,328 C48,268 44,168 104,104 C144,62 196,38 266,36 Z" fill="#e8f0eb"/>
+    <ellipse cx="392" cy="108" rx="66" ry="58" fill="#fdf3e3" opacity="0.9"/>
+
+    <!-- decorative dots -->
+    <circle cx="96" cy="86" r="4" fill="#a0a0a0" opacity="0.5"/>
+    <circle cx="80" cy="330" r="3" fill="#a0a0a0" opacity="0.5"/>
+    <circle cx="446" cy="300" r="4" fill="#a0a0a0" opacity="0.5"/>
+    <circle cx="120" cy="368" r="3" fill="#c17f24" opacity="0.6"/>
+    <circle cx="464" cy="196" r="3" fill="#1a472a" opacity="0.5"/>
+
+    <!-- trend line from chart toward wallet -->
+    <path d="M274,140 C300,120 326,116 350,120" fill="none" stroke="#1a472a" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 8" opacity="0.6"/>
+
+    <!-- growth bar chart -->
+    <line x1="132" y1="332" x2="308" y2="332" stroke="#e4e1da" stroke-width="2"/>
+    <rect x="140" y="272" width="26" height="60" rx="8" fill="#1a472a"/>
+    <rect x="180" y="232" width="26" height="100" rx="8" fill="#c17f24"/>
+    <rect x="220" y="182" width="26" height="150" rx="8" fill="#5b7fa6"/>
+    <rect x="260" y="142" width="26" height="190" rx="8" fill="#8b5e83"/>
+
+    <!-- wallet -->
+    <rect x="300" y="176" width="176" height="112" rx="20" fill="#0f0f0f"/>
+    <rect x="316" y="194" width="144" height="26" rx="8" fill="#2d2d2d"/>
+    <rect x="316" y="238" width="80" height="8" rx="4" fill="#6b6b6b" opacity="0.6"/>
+    <circle cx="456" cy="200" r="18" fill="#c17f24" stroke="#f7f6f3" stroke-width="4"/>
+    <text x="456" y="206" font-family="'DM Serif Display', Georgia, serif" font-size="16" fill="#0f0f0f" text-anchor="middle">₹</text>
+
+    <!-- floating coins -->
+    <circle cx="356" cy="118" r="30" fill="#1a472a" stroke="#f7f6f3" stroke-width="5"/>
+    <text x="356" y="128" font-family="'DM Serif Display', Georgia, serif" font-size="24" fill="#f7f6f3" text-anchor="middle">₹</text>
+    <circle cx="404" cy="88" r="18" fill="#c17f24" stroke="#f7f6f3" stroke-width="4"/>
+
+</svg>

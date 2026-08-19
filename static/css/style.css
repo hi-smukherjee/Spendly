@@ -175,7 +175,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ------------------------------------------------------------------ */
-/* Mock card (hero visual)                                             */
+/* Hero visual                                                         */
 /* ------------------------------------------------------------------ */
 
 .hero-visual {
@@ -183,77 +183,11 @@ a { color: inherit; text-decoration: none; }
     justify-content: center;
 }
 
-.mock-card {
-    background: var(--paper-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
+.hero-illustration {
     width: 100%;
-    max-width: 380px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.06);
-}
-
-.mock-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 1.75rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid var(--border-soft);
-}
-
-.mock-label {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-.mock-total {
-    font-family: var(--font-display);
-    font-size: 1.75rem;
-    color: var(--ink);
-}
-
-.mock-bars { display: flex; flex-direction: column; gap: 1rem; }
-
-.mock-bar-row {
-    display: grid;
-    grid-template-columns: 80px 1fr 60px;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.mock-cat {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--ink-soft);
-}
-
-.mock-bar-track {
-    height: 6px;
-    background: var(--border-soft);
-    border-radius: 999px;
-    overflow: hidden;
-}
-
-.mock-bar {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 999px;
-    transition: width 0.6s ease;
-}
-
-.mock-bar-2 { background: var(--accent-2); }
-.mock-bar-3 { background: #5b7fa6; }
-.mock-bar-4 { background: #8b5e83; }
-
-.mock-amt {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--ink-muted);
-    text-align: right;
+    max-width: 440px;
+    height: auto;
+    filter: drop-shadow(0 8px 40px rgba(0,0,0,0.06));
 }
 
 /* ------------------------------------------------------------------ */
