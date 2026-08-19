@@ -20,7 +20,7 @@
             </a>
             <div class="nav-links">
                 <a href="{{ url_for('login') }}">Sign in</a>
-                <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>
+                <a href="#" class="nav-cta" id="getStartedBtn">Get started</a>
             </div>
         </div>
     </nav>
@@ -40,6 +40,21 @@
             </div>
         </div>
     </footer>
+
+    <div class="video-modal" id="videoModal" aria-hidden="true">
+        <div class="video-modal-overlay" id="videoModalOverlay"></div>
+        <div class="video-modal-box">
+            <button type="button" class="video-modal-close" id="videoModalClose" aria-label="Close video">&times;</button>
+            <div class="video-modal-frame">
+                <iframe id="videoModalIframe"
+                        src=""
+                        title="Get started with Spendly"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
