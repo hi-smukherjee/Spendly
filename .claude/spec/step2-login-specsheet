@@ -1,0 +1,143 @@
+# Spec Document — Step 2: Login Authentication
+
+## 1. Overview
+
+Implement working authentication for `/login` and `/logout`, replacing the current GET-only stub
+and the `"Logout — coming in Step 3"` placeholder.
+
+This step establishes the **session layer** for Spendly. Profile (Step 4) and expense management
+(Steps 7–9) depend on a logged-in user existing in `session`.
+
+## 2. Depends on
+
+Step 1 (Database Setup) — `users` table and `get_db()` must exist. Both already do.
+
+## 3. Scope decision — adapted from the source SRS
+
+An enterprise-style SRS was provided as the starting point (SQLAlchemy, Flask-Login, Flask-WTF,
+Flask-Mail, PostgreSQL, RBAC, audit log, email-based password reset, account lockout, remember-me).
+Per explicit sign-off, this step **narrows that spec** to fit the existing architecture:
+
+- **Stack: unchanged.** Stdlib `sqlite3`, `werkzeug.security` for hashing, plain Flask sessions.
+  No SQLAlchemy, Flask-Login, Flask-WTF, Flask-Mail, or Postgres — per `CLAUDE.md`'s "no ORM" rule
+  and to avoid new dependencies for a step that doesn't need them.
+- **Features: core only.** Login, logout, password verification, session creation + 30-minute
+  inactivity expiry, CSRF protection, generic error messages, and gating the existing placeholder
+  routes behind login.
+- **Explicitly out of scope for this step** (may become later steps if wanted):
+  - Account lockout after failed attempts
+  - "Remember me" persistent cookie
+  - Password reset via email
+  - Role-based access control / roles
+  - Login audit log table
+  - Registration `POST` handling (`/register` stays a template-only GET stub — a separate,
+    already-existing placeholder, not part of a "login" spec)
+
+## 4. Routes
+
+| Route | Method | Change |
+| --- | --- | --- |
+| `/login` | GET | Existing — now also issues a CSRF token into the session for the form |
+| `/login` | POST | **New.** Validates credentials, creates session, redirects |
+| `/logout` | GET | **Replaces placeholder.** Clears session, redirects to `/login` |
+| `/profile`, `/expenses/add`, `/expenses/<id>/edit`, `/expenses/<id>/delete` | — | Gated behind `@login_required`; unauthenticated requests redirect to `/login`. Their own bodies stay untouched (still placeholders for later steps). |
+
+No changes to `/register`, `/`, `/terms`, `/privacy`.
+
+## 5. Database Schema
+
+No new tables. No new columns — lockout/audit fields are out of scope (§3).
+
+## 6. Session Design
+
+- `app.secret_key` set in `app.py` (currently unset — required for any signed session cookie).
+  Dev value lives directly in `app.py` with a comment that production must read it from an
+  environment variable instead.
+- `app.config`:
+  - `PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)`
+  - `SESSION_COOKIE_HTTPONLY = True`
+  - `SESSION_COOKIE_SAMESITE = "Lax"`
+  - `SESSION_COOKIE_SECURE = False` — dev runs over plain HTTP on `localhost:5001`; flip to `True`
+    behind HTTPS in production.
+- On successful login: `session.clear()` (fixation hygiene — drops anything tied to the
+  pre-login/anonymous session), then `session["user_id"] = user["id"]`, `session["user_name"] =
+  user["name"]`, `session.permanent = True`. Flask reissues the signed cookie value automatically
+  because the payload changed, which is the practical equivalent of session-ID regeneration for
+  Flask's client-side session model (there is no server-side session-ID store to rotate).
+- `SESSION_REFRESH_EACH_REQUEST` stays at its Flask default (`True`), which turns the 30-minute
+  lifetime into a sliding/inactivity timeout, matching FR-004.
+- Logout: `session.clear()`.
+
+## 7. CSRF Protection (manual — no Flask-WTF)
+
+- `GET /login` generates `secrets.token_hex(16)` if not already in `session["csrf_token"]`, stores
+  it, and passes it to the template as a hidden `<input>`.
+- `POST /login` rejects (generic error, no session created) if the submitted token is missing or
+  doesn't match `session["csrf_token"]`.
+
+## 8. `POST /login` Processing
+
+1. Read `email`, `password`, `csrf_token` from the form.
+2. Validate CSRF token (§7).
+3. Validate both fields are non-empty → field-specific message if not (§10 table).
+4. Look up user by email via parameterized query.
+5. If no user, or `check_password_hash` fails → **generic** `"Invalid email or password."`
+   (never reveal which field was wrong).
+6. On success: create session (§6), redirect to `/profile`.
+
+`/profile` is still a placeholder string (Step 4), but it's the correct post-login landing target —
+Step 4 will flesh out its content, not its route.
+
+## 9. `login_required` Decorator
+
+New small decorator in `app.py` (no new file needed for one decorator at this size):
+checks `session.get("user_id")`; if absent, redirects to `/login`. Applied to `/profile` and the
+three `/expenses/...` placeholder routes so the login system has an observable effect.
+
+## 10. Validation / Error Messages
+
+| Condition | Message |
+| --- | --- |
+| Empty email | `Email is required.` |
+| Empty password | `Password is required.` |
+| Invalid credentials (bad email OR bad password) | `Invalid email or password.` |
+| Missing/bad CSRF token | `Invalid email or password.` (same generic message — don't leak CSRF-specific detail) |
+
+Errors render on `login.html` via the existing `{% if error %}` block — no template restructuring.
+
+## 11. Template Changes
+
+- `login.html`: add `<input type="hidden" name="csrf_token" value="{{ csrf_token }}">` inside the
+  form.
+- `base.html`: nav becomes session-aware using Flask's built-in `session` template global (no new
+  context processor needed):
+  - Logged out (current behavior): "Sign in" + "Get started".
+  - Logged in: user's name (`session.user_name`) + a "Log out" link to `/logout`.
+
+## 12. Files to Change
+
+- `app.py` — secret key, session config, `login_required`, `/login` POST logic, real `/logout`,
+  decorator applied to placeholder routes.
+- `templates/login.html` — CSRF hidden field.
+- `templates/base.html` — session-aware nav.
+
+## 13. Files to Create
+
+- None.
+
+## 14. Dependencies
+
+- No new pip packages. Uses `secrets` (stdlib), already-installed `werkzeug.security`, and Flask's
+  built-in `session`.
+
+## 15. Definition of Done
+
+- [ ] Demo user (`demo@spendly.com` / `demo123`) can log in and lands on `/profile`.
+- [ ] Wrong password / unknown email both show the same generic message.
+- [ ] Empty email or password shows the field-specific message.
+- [ ] Missing/tampered CSRF token on `POST /login` is rejected.
+- [ ] Successful login sets a session cookie that is `HttpOnly`, `SameSite=Lax`.
+- [ ] Visiting `/profile` or any `/expenses/...` route while logged out redirects to `/login`.
+- [ ] `/logout` clears the session and visiting `/profile` afterward redirects to `/login` again.
+- [ ] Nav shows "Sign in"/"Get started" when logged out, name + "Log out" when logged in.
+- [ ] `app.py` starts cleanly; existing routes (`/`, `/register`, `/terms`, `/privacy`) unaffected.
