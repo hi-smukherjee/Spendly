@@ -28,6 +28,17 @@
     --radius-sm: 6px;
     --radius-md: 12px;
     --radius-lg: 20px;
+
+    --cat-food: #e8542e;
+    --cat-transport: #2f6fed;
+    --cat-bills: #8b5cf6;
+    --cat-health: #10b981;
+    --cat-entertainment: #ec4899;
+    --cat-shopping: #f59e0b;
+    --cat-other: #64748b;
+
+    --stat-accent-1: var(--accent-2);
+    --stat-accent-2: var(--accent);
 }
 
 /* ------------------------------------------------------------------ */
@@ -521,6 +532,149 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ------------------------------------------------------------------ */
+/* Profile page                                                        */
+/* ------------------------------------------------------------------ */
+
+.profile-section {
+    padding: 3rem 2rem 4rem;
+}
+
+.profile-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-title {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+}
+
+.profile-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 2.5rem;
+}
+
+/* Summary stat cards */
+
+.stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--stat-top-color, var(--accent));
+    border-radius: var(--radius-md);
+    padding: 1.5rem 1.75rem;
+}
+
+.stat-value {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+}
+
+/* Expense table */
+
+.table-scroll { overflow-x: auto; }
+
+.expense-table { width: 100%; border-collapse: collapse; }
+
+.expense-table th {
+    text-align: left;
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    font-weight: 500;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.expense-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+}
+
+.expense-table tr:last-child td { border-bottom: none; }
+
+.expense-table tr { border-left: 3px solid var(--cat-other); }
+
+.expense-table tr.category-food { border-left-color: var(--cat-food); }
+.expense-table tr.category-transport { border-left-color: var(--cat-transport); }
+.expense-table tr.category-bills { border-left-color: var(--cat-bills); }
+.expense-table tr.category-health { border-left-color: var(--cat-health); }
+.expense-table tr.category-entertainment { border-left-color: var(--cat-entertainment); }
+.expense-table tr.category-shopping { border-left-color: var(--cat-shopping); }
+
+.expense-amount { text-align: right; font-weight: 600; color: var(--ink); }
+
+.expense-category {
+    display: inline-block;
+    background: color-mix(in srgb, var(--cat-other) 15%, white);
+    color: var(--cat-other);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+}
+
+.category-food .expense-category { background: color-mix(in srgb, var(--cat-food) 15%, white); color: var(--cat-food); }
+.category-transport .expense-category { background: color-mix(in srgb, var(--cat-transport) 15%, white); color: var(--cat-transport); }
+.category-bills .expense-category { background: color-mix(in srgb, var(--cat-bills) 15%, white); color: var(--cat-bills); }
+.category-health .expense-category { background: color-mix(in srgb, var(--cat-health) 15%, white); color: var(--cat-health); }
+.category-entertainment .expense-category { background: color-mix(in srgb, var(--cat-entertainment) 15%, white); color: var(--cat-entertainment); }
+.category-shopping .expense-category { background: color-mix(in srgb, var(--cat-shopping) 15%, white); color: var(--cat-shopping); }
+
+/* Empty state */
+
+.profile-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.profile-empty-icon {
+    display: block;
+    font-size: 2.5rem;
+    color: var(--ink-faint);
+    margin-bottom: 1rem;
+}
+
+.profile-empty h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+}
+
+.profile-empty p {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+}
+
+/* ------------------------------------------------------------------ */
 /* Video modal (Get started)                                          */
 /* ------------------------------------------------------------------ */
 
@@ -606,6 +760,8 @@ body.modal-open { overflow: hidden; }
     .hero-visual { display: none; }
 
     .features-inner { grid-template-columns: 1fr; }
+
+    .stat-row { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 600px) {
@@ -615,6 +771,10 @@ body.modal-open { overflow: hidden; }
     .legal-section { padding: 2rem 1rem 3rem; }
     .legal-card { padding: 1.5rem; }
     .legal-title { font-size: 1.75rem; }
+
+    .profile-section { padding: 2rem 1rem 3rem; }
+    .profile-card { padding: 1.5rem; }
+    .profile-title { font-size: 1.75rem; }
 
     .video-modal { padding: 1rem; }
     .video-modal-close {

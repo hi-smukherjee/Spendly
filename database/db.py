@@ -58,6 +58,16 @@ def get_user_by_email(email):
     return user
 
 
+def get_expenses_by_user(user_id):
+    """Return all expenses for a user, most recent date first."""
+    conn = get_db()
+    expenses = conn.execute(
+        "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC", (user_id,)
+    ).fetchall()
+    conn.close()
+    return expenses
+
+
 def seed_db():
     """Insert sample data for development. Safe to call multiple times."""
     conn = get_db()

@@ -5,7 +5,7 @@ from functools import wraps
 from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.security import check_password_hash
 
-from database.db import get_user_by_email, init_db, seed_db
+from database.db import get_expenses_by_user, get_user_by_email, init_db, seed_db
 
 app = Flask(__name__)
 
@@ -105,7 +105,22 @@ def logout():
 @app.route("/profile")
 @login_required
 def profile():
-    return "Profile page — coming in Step 4"
+    expenses = get_expenses_by_user(session["user_id"])
+
+    total_spent = sum(expense["amount"] for expense in expenses)
+    totals_by_category = {}
+    for expense in expenses:
+        totals_by_category[expense["category"]] = (
+            totals_by_category.get(expense["category"], 0) + expense["amount"]
+        )
+    top_category = max(totals_by_category, key=totals_by_category.get) if expenses else None
+
+    return render_template(
+        "profile.html",
+        expenses=expenses,
+        total_spent=total_spent,
+        top_category=top_category,
+    )
 
 
 @app.route("/expenses/add")
