@@ -651,6 +651,11 @@ a { color: inherit; text-decoration: none; }
 .category-entertainment .expense-category { background: color-mix(in srgb, var(--cat-entertainment) 15%, white); color: var(--cat-entertainment); }
 .category-shopping .expense-category { background: color-mix(in srgb, var(--cat-shopping) 15%, white); color: var(--cat-shopping); }
 
+.btn-table-action {
+    padding: 0.3rem 0.85rem;
+    font-size: 0.8rem;
+}
+
 /* Empty state */
 
 .profile-empty {

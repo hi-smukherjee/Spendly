@@ -1,11 +1,19 @@
+import math
 import secrets
 from datetime import timedelta
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, abort, render_template, request, redirect, session, url_for
 from werkzeug.security import check_password_hash
 
-from database.db import get_expenses_by_user, get_user_by_email, init_db, seed_db
+from database.db import (
+    get_expense_by_id,
+    get_expenses_by_user,
+    get_user_by_email,
+    init_db,
+    seed_db,
+    update_expense,
+)
 
 app = Flask(__name__)
 
@@ -33,6 +41,11 @@ def login_required(view):
             return redirect(url_for("login"))
         return view(*args, **kwargs)
     return wrapped
+
+
+# Fixed category set — used both to populate the edit form's <select> and to validate
+# submitted category values server-side (a <select> is a UI hint, not a guarantee).
+EXPENSE_CATEGORIES = ["Food", "Transport", "Bills", "Health", "Entertainment", "Shopping", "Other"]
 
 
 # ------------------------------------------------------------------ #
@@ -135,10 +148,62 @@ def add_expense():
     return "Add expense — coming in Step 7"
 
 
-@app.route("/expenses/<int:id>/edit")
+@app.route("/expenses/<int:id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_expense(id):
-    return "Edit expense — coming in Step 8"
+    expense = get_expense_by_id(id, session["user_id"])
+    if expense is None:
+        abort(404)
+
+    if request.method == "GET":
+        session["csrf_token"] = secrets.token_hex(16)
+        return render_template(
+            "edit_expense.html",
+            expense=expense,
+            categories=EXPENSE_CATEGORIES,
+            csrf_token=session["csrf_token"],
+        )
+
+    form = {
+        "amount": request.form.get("amount", "").strip(),
+        "category": request.form.get("category", "").strip(),
+        "date": request.form.get("date", "").strip(),
+        "description": request.form.get("description", "").strip(),
+    }
+    submitted_token = request.form.get("csrf_token", "")
+
+    error = None
+    amount_value = None
+    if not submitted_token or submitted_token != session.get("csrf_token"):
+        error = "Something went wrong. Please try again."
+    elif not form["date"]:
+        error = "Date is required."
+    elif form["category"] not in EXPENSE_CATEGORIES:
+        error = "Please choose a valid category."
+    else:
+        try:
+            amount_value = float(form["amount"])
+            if not math.isfinite(amount_value) or amount_value <= 0:
+                error = "Amount must be greater than zero."
+        except ValueError:
+            error = "Amount must be a number."
+
+    if error:
+        session["csrf_token"] = secrets.token_hex(16)
+        return render_template(
+            "edit_expense.html",
+            expense=expense,
+            categories=EXPENSE_CATEGORIES,
+            csrf_token=session["csrf_token"],
+            error=error,
+            form=form,
+        )
+
+    update_expense(
+        id, session["user_id"], amount_value, form["category"], form["date"],
+        form["description"] or None,
+    )
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:id>/delete")
